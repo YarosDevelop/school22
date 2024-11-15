@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    #chat {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 20px;
+      padding: 10px;
+    }
+    #nickname, #message {
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Welcome to the Chat!</h1>
+
+<!-- Никнейм -->
+<div id="nickname-section">
+  <input type="text" id="nickname" placeholder="Enter your nickname" />
+  <button onclick="setNickname()">Set Nickname</button>
+</div>
+
+<!-- Чат -->
+<div id="chat"></div>
+
+<!-- Сообщения -->
+<div>
+  <input type="text" id="message" placeholder="Enter a message" />
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  let nickname = '';
+
+  // Установка никнейма
+  function setNickname() {
+    nickname = document.getElementById('nickname').value;
+    if (nickname) {
+      document.getElementById('nickname-section').style.display = 'none'; // Скрываем поле ввода
+      document.getElementById('message').focus(); // Фокус на поле для сообщения
+    }
+  }
+
+  // Отправка сообщения
+  function sendMessage() {
+    const message = document.getElementById('message').value;
+    if (message) {
+      socket.emit('chat message', `${nickname}: ${message}`);
+      document.getElementById('message').value = ''; // Очищаем поле ввода
+    }
+  }
+
+  // Отображение сообщений
+  socket.on('chat message', (msg) => {
+    const chat = document.getElementById('chat');
+    const messageElement = document.createElement('p');
+    messageElement.textContent = msg;
+    chat.appendChild(messageElement);
+    chat.scrollTop = chat.scrollHeight; // Прокрутка вниз
+  });
+</script>
+
+</body>
+</html>
